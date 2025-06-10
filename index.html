@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kaan Bilgiç Staj Quizi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #f9fafb; font-family: 'Segoe UI',sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .quiz-box { background: white; padding: 2rem 2.5rem; border-radius: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); max-width: 350px; width: 100%; }
+    .quiz-img { display: block; margin: 0 auto 1.5rem auto; width: 240px; height: 240px; border-radius: 1rem; object-fit: cover; }
+    h1 { font-size: 1.35rem; font-weight: 600; text-align: center; margin-bottom: 2rem; }
+    .options { display: flex; flex-direction: column; gap: 1rem; }
+    button.option { padding: .7rem 1rem; border: none; border-radius: .75rem; background: #e5e7eb; font-size: 1.05rem; transition: all .22s cubic-bezier(.7,1.5,.5,1); cursor: pointer; font-weight: 500; position: relative; z-index:1;}
+    button.option:hover { background: #fbbf24; color: #fff; }
+    .hide { display: none !important; }
+    .shrink {
+      animation: shrink .33s forwards cubic-bezier(.4,2.4,.38,1.06);
+    }
+    @keyframes shrink {
+      to { opacity:0; transform: scale(0.7); }
+    }
+    .final { text-align: center; animation: pop 0.6s cubic-bezier(.26,.53,.74,1.48); }
+    .final h2 { font-size: 1.15rem; margin-bottom: 1.3rem; }
+    .audio-box { margin-top: 2rem; }
+    @keyframes pop { 0% { scale:0.7; opacity:0 } 100% { scale:1; opacity:1 } }
+
+    /* Son soruda hayır yok olunca evet büyüyecek */
+    .expand {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 10;
+      background: #fbbf24;
+      color: #fff !important;
+      font-size: 2.1rem !important;
+      border-radius: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: expandBtn 0.7s forwards cubic-bezier(.4,2,.65,1);
+    }
+    @keyframes expandBtn {
+      0% { font-size:1.15rem; border-radius:.75rem;}
+      40% { font-size:2.2rem; border-radius:2.2rem;}
+      100% { font-size:2.7rem; border-radius:2.5rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-box" id="quizBox"></div>
+
+  <script>
+    const questions = [
+      {
+        img: "oe.jpg",
+        q: "Bu adam kimdir?",
+        opts: [
+          "Kanaat önderi",
+          "OE!", // doğru
+          "Genç kızların sevgilisi"
+        ],
+        correct: 1
+      },
+      {
+        img: "aynenistan.png",
+        q: "Boşluğu tamamlayınız?",
+        opts: [
+          "CENG!", // doğru
+          "EE",
+          "Endüstri"
+        ],
+        correct: 1
+      },
+      { img: "regl.jpg",
+        q: "Kaan Bilgiç'in boyu kaç cmdir? (tabanlıksız halini baz alınız)",
+        opts: [
+          "1.68",
+          "1.82",
+          "Kızların regl acısı çekmesine dayanamıyorum (2.82)!"
+        ],
+        correct: 2
+      },
+      {
+        img: "kaan.jpg",
+        q: "Kaan Bilgiç'le bir kahve içmek ister misiniz?",
+        opts: [
+          "Evet!", // doğru
+          "Hayır"
+        ],
+        correct: 0
+      }
+    ];
+
+    const quizBox = document.getElementById('quizBox');
+    let step = 0;
+
+    function renderQuiz() {
+      const q = questions[step];
+      let html = "";
+      if (step === 0) {
+        html += `<img src="${q.img}" class="quiz-img" alt="kaan">`;
+      }
+      if(step == 1)
+      {
+        html += `<img src="${q.img}" class="quiz-img" alt="kaan">`;
+      }
+      if(step == 2)
+      {
+        html += `<img src="${q.img}" class="quiz-img" alt="kaan">`;
+      }
+      if(step == 3)
+      {
+        html += `<img src="${q.img}" class="quiz-img" alt="kaan">`;
+      }
+      html += `<h1>${q.q}</h1>`;
+      html += `<div class="options" style="position:relative;">`;
+      q.opts.forEach((opt, i) => {
+        let extra = "";
+        if (step === 3 && i === 0) extra = ' id="evetBtn"';
+        if (step === 3 && i === 1) extra = ' id="hayirBtn"';
+        html += `<button class="option"${extra} data-ix="${i}">${opt.replace('!', '')}</button>`;
+      });
+      html += `</div>`;
+      quizBox.innerHTML = html;
+
+      // Eventler
+      document.querySelectorAll('.option').forEach(btn => {
+        btn.onclick = function() {
+          const ix = +btn.dataset.ix;
+          // Son soru özel efekt
+          if (step === 3) {
+            if (ix === 1) {
+              // "Hayır" butonunu yok et
+              btn.classList.add('shrink');
+              setTimeout(() => { btn.classList.add('hide'); 
+                // "Evet" büyüsün
+                const evetBtn = document.getElementById("evetBtn");
+                evetBtn.classList.add("expand");
+                evetBtn.innerText = "EVET";
+                // Evet'e yeni click: final
+                evetBtn.onclick = function() {
+                  showFinal();
+                };
+              }, 300);
+              return;
+            }
+            if (ix === 0) {
+              showFinal();
+              return;
+            }
+          }
+          // Diğer sorularda yanlış şık ise patlat yok et
+          if (ix !== questions[step].correct) {
+            btn.classList.add('shrink');
+            setTimeout(() => { btn.classList.add('hide'); }, 290);
+            return;
+          }
+          // Doğruysa sonraki soruya geç
+          step++;
+          if (step < questions.length) setTimeout(renderQuiz, 220);
+          else setTimeout(showFinal, 220);
+        }
+      });
+    }
+
+    function showFinal() {
+      quizBox.innerHTML = `
+        <div class="final">
+          <h2>Tüm soruları doğru cevapladınız.<br>Lütfen en kısa zamanda kendisine müsaitlik durumunuzu bildiriniz.</h2>
+          <div class="audio-box">
+            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/0QcYWyS580NTL6jjMR2oJE?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+              🎶 Sizin için seçilen şarkı
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    renderQuiz();
+  </script>
+</body>
+</html>
