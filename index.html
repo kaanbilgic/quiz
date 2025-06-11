@@ -43,12 +43,30 @@
       40% { font-size:2.2rem; border-radius:2.2rem;}
       100% { font-size:2.7rem; border-radius:2.5rem;}
     }
+
+    /* İsim ekranı özel stil */
+    .name-form { display: flex; flex-direction: column; gap: 1.1rem; align-items: center; }
+    .name-form input {
+      padding: .6rem 1.1rem; border-radius: .7rem; border: 1.5px solid #d1d5db;
+      font-size: 1.07rem; outline: none; transition: border .2s;
+    }
+    .name-form input:focus { border-color: #fbbf24; }
+    .name-form button {
+      padding: .6rem 1.3rem; border: none; border-radius: .7rem;
+      background: #fbbf24; color: white; font-weight: 600; cursor: pointer; font-size: 1.08rem;
+      transition: background .18s;
+    }
+    .name-form button:hover { background: #f59e19; }
+    .name-error { color: #dc2626; font-size: .99rem; margin-top: .4rem; min-height: 20px; }
   </style>
 </head>
 <body>
   <div class="quiz-box" id="quizBox"></div>
 
   <script>
+    // Başta isim ekranı
+    let userName = "";
+
     const questions = [
       {
         img: "oe.jpg",
@@ -68,9 +86,10 @@
           "EE",
           "Endüstri"
         ],
-        correct: 1
+        correct: 0
       },
-      { img: "regl.jpg",
+      {
+        img: "regl.jpg",
         q: "Kaan Bilgiç'in boyu kaç cmdir? (tabanlıksız halini baz alınız)",
         opts: [
           "1.68",
@@ -91,25 +110,35 @@
     ];
 
     const quizBox = document.getElementById('quizBox');
-    let step = 0;
+    let step = -1; // Başta isim ekranı
+
+    function renderNameScreen() {
+      quizBox.innerHTML = `
+        <form class="name-form" id="nameForm" autocomplete="off">
+          <h1>Quiz'e başlamadan önce ismini gir:</h1>
+          <input id="nameInput" type="text" placeholder="Adın..." maxlength="16" required autofocus />
+          <button type="submit">Başla</button>
+          <div class="name-error" id="nameError"></div>
+        </form>
+      `;
+      document.getElementById("nameForm").onsubmit = function(e) {
+        e.preventDefault();
+        const val = document.getElementById("nameInput").value.trim().toLowerCase();
+        if (val === "ceyla" || val === "ece") {
+          userName = val;
+          step = 0;
+          renderQuiz();
+        } else {
+          document.getElementById("nameError").textContent = "Lütfen doğru kişiyi girin 🙃";
+        }
+      };
+    }
 
     function renderQuiz() {
       const q = questions[step];
       let html = "";
-      if (step === 0) {
-        html += `<img src="${q.img}" class="quiz-img" alt="kaan">`;
-      }
-      if(step == 1)
-      {
-        html += `<img src="${q.img}" class="quiz-img" alt="kaan">`;
-      }
-      if(step == 2)
-      {
-        html += `<img src="${q.img}" class="quiz-img" alt="kaan">`;
-      }
-      if(step == 3)
-      {
-        html += `<img src="${q.img}" class="quiz-img" alt="kaan">`;
+      if (q.img) {
+        html += `<img src="${q.img}" class="quiz-img" alt="quiz">`;
       }
       html += `<h1>${q.q}</h1>`;
       html += `<div class="options" style="position:relative;">`;
@@ -175,7 +204,8 @@
       `;
     }
 
-    renderQuiz();
+    // Sayfa açılışında isim ekranı gelsin
+    renderNameScreen();
   </script>
 </body>
 </html>
