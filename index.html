@@ -7,91 +7,31 @@
   <style>
     body { background: #f9fafb; font-family: 'Segoe UI',sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
     .quiz-box { background: white; padding: 2rem 2.5rem; border-radius: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.07); max-width: 350px; width: 100%; }
+    .quiz-video { display: block; margin: 0 auto 1.4rem auto; width: 100%; max-width: 300px; border-radius: 1.1rem; }
     .quiz-img { display: block; margin: 0 auto 1.5rem auto; width: 240px; height: 240px; border-radius: 1rem; object-fit: cover; }
     h1 { font-size: 1.35rem; font-weight: 600; text-align: center; margin-bottom: 2rem; }
     .options { display: flex; flex-direction: column; gap: 1rem; position: relative; }
     button.option { padding: .7rem 1rem; border: none; border-radius: .75rem; background: #e5e7eb; font-size: 1.05rem; transition: all .22s cubic-bezier(.7,1.5,.5,1); cursor: pointer; font-weight: 500; position: relative; z-index:1;}
     button.option:hover { background: #fbbf24; color: #fff; }
     .hide { display: none !important; }
-    .shrink {
-      animation: shrink .33s forwards cubic-bezier(.4,2.4,.38,1.06);
-    }
-    @keyframes shrink {
-      to { opacity:0; transform: scale(0.7); }
-    }
-    .final { text-align: center; animation: pop 0.6s cubic-bezier(.26,.53,.74,1.48); }
-    .final h2 { font-size: 1.15rem; margin-bottom: 1.3rem; }
-    .audio-box { margin-top: 2rem; }
+    .shrink { animation: shrink .33s forwards cubic-bezier(.4,2.4,.38,1.06);}
+    @keyframes shrink { to { opacity:0; transform: scale(0.7); } }
+    .final { text-align: center; animation: pop 0.6s cubic-bezier(.26,.53,.74,1.48);}
+    .final h2 { font-size: 1.15rem; margin-bottom: 1.3rem;}
+    .audio-box { margin-top: 2rem;}
     @keyframes pop { 0% { scale:0.7; opacity:0 } 100% { scale:1; opacity:1 } }
-    /* 2. soru için patlama animasyonu */
-    .explode {
-      animation: explode .28s forwards cubic-bezier(.4,2.4,.38,1.06);
-      background: #f87171 !important;
-      color: #fff !important;
-    }
-    @keyframes explode {
-      0% { transform: scale(1); }
-      70% { transform: scale(1.24) rotate(-7deg);}
-      100% { opacity:0; transform: scale(0.4) rotate(16deg);}
-    }
-    /* Son soruda hayır yok olunca evet büyüyecek */
-    .expand {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 10;
-      background: #fbbf24;
-      color: #fff !important;
-      font-size: 2.1rem !important;
-      border-radius: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: expandBtn 0.7s forwards cubic-bezier(.4,2,.65,1);
-    }
-    @keyframes expandBtn {
-      0% { font-size:1.15rem; border-radius:.75rem;}
-      40% { font-size:2.2rem; border-radius:2.2rem;}
-      100% { font-size:2.7rem; border-radius:2.5rem;}
-    }
-    /* İsim ekranı özel stil */
-    .name-form { display: flex; flex-direction: column; gap: 1.1rem; align-items: center; }
-    .name-form input {
-      padding: .6rem 1.1rem; border-radius: .7rem; border: 1.5px solid #d1d5db;
-      font-size: 1.07rem; outline: none; transition: border .2s;
-    }
+    .explode { animation: explode .28s forwards cubic-bezier(.4,2.4,.38,1.06); background: #f87171 !important; color: #fff !important;}
+    @keyframes explode { 0% { transform: scale(1); } 70% { transform: scale(1.24) rotate(-7deg);} 100% { opacity:0; transform: scale(0.4) rotate(16deg);} }
+    .expand { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: #fbbf24; color: #fff !important; font-size: 2.1rem !important; border-radius: 1.5rem; display: flex; align-items: center; justify-content: center; animation: expandBtn 0.7s forwards cubic-bezier(.4,2,.65,1);}
+    @keyframes expandBtn { 0% { font-size:1.15rem; border-radius:.75rem;} 40% { font-size:2.2rem; border-radius:2.2rem;} 100% { font-size:2.7rem; border-radius:2.5rem;} }
+    .name-form { display: flex; flex-direction: column; gap: 1.1rem; align-items: center;}
+    .name-form input { padding: .6rem 1.1rem; border-radius: .7rem; border: 1.5px solid #d1d5db; font-size: 1.07rem; outline: none; transition: border .2s;}
     .name-form input:focus { border-color: #fbbf24; }
-    .name-form button {
-      padding: .6rem 1.3rem; border: none; border-radius: .7rem;
-      background: #fbbf24; color: white; font-weight: 600; cursor: pointer; font-size: 1.08rem;
-      transition: background .18s;
-    }
+    .name-form button { padding: .6rem 1.3rem; border: none; border-radius: .7rem; background: #fbbf24; color: white; font-weight: 600; cursor: pointer; font-size: 1.08rem; transition: background .18s;}
     .name-form button:hover { background: #f59e19; }
     .name-error { color: #dc2626; font-size: .99rem; margin-top: .4rem; min-height: 20px; }
-    /* İlk soruda şıkların üstünde özel mesaj */
-    .inline-msg {
-      position: absolute;
-      left: 50%;
-      top: -35px;
-      transform: translateX(-50%);
-      background: #fbbf24;
-      color: #fff;
-      font-weight: 600;
-      padding: 0.35em 1.2em;
-      border-radius: 1.1em;
-      font-size: 1.06rem;
-      box-shadow: 0 2px 12px #fbbf2444;
-      min-width: 120px;
-      text-align: center;
-      z-index: 12;
-      pointer-events: none;
-      opacity: 0;
-      animation: msgpop .36s forwards cubic-bezier(.25,1.6,.5,1);
-    }
-    @keyframes msgpop {
-      0% { opacity:0; transform: translateX(-50%) scale(0.7);}
-      70% { opacity:1; transform: translateX(-50%) scale(1.08);}
-      100% { opacity:1; transform: translateX(-50%) scale(1);}
-    }
+    .inline-msg { position: absolute; left: 50%; top: -35px; transform: translateX(-50%); background: #fbbf24; color: #fff; font-weight: 600; padding: 0.35em 1.2em; border-radius: 1.1em; font-size: 1.06rem; box-shadow: 0 2px 12px #fbbf2444; min-width: 120px; text-align: center; z-index: 12; pointer-events: none; opacity: 0; animation: msgpop .36s forwards cubic-bezier(.25,1.6,.5,1);}
+    @keyframes msgpop { 0% { opacity:0; transform: translateX(-50%) scale(0.7);} 70% { opacity:1; transform: translateX(-50%) scale(1.08);} 100% { opacity:1; transform: translateX(-50%) scale(1);} }
   </style>
 </head>
 <body>
@@ -101,7 +41,6 @@
 
     const questions = [
       {
-        // Yeni ilk soru (resimsiz)
         q: "Dünyanın en güzel kızı kimdir?",
         opts: [
           "Ceyla Demir",
@@ -115,8 +54,8 @@
         q: "Kaan Bilgiç daha önce kaç kıza site tasarlamıştır?",
         opts: [
           "99+",
-          "19", // yanlış
-          "0" // doğru
+          "19",
+          "0"
         ],
         correct: 2
       },
@@ -125,7 +64,7 @@
         q: "Boşluğu tamamlayınız?",
         opts: [
           "CENG",
-          "EE!",// doğru
+          "EE!",
           "Endüstri"
         ],
         correct: 1
@@ -144,7 +83,7 @@
         img: "kaan.jpg",
         q: "Kaan Bilgiç'le bir kahve içmek ister misiniz?",
         opts: [
-          "Evet!", // doğru
+          "Evet!",
           "Hayır"
         ],
         correct: 0
@@ -156,6 +95,7 @@
 
     function renderNameScreen() {
       quizBox.innerHTML = `
+        <video class="quiz-video" src="video.mp4" controls autoplay loop muted playsinline></video>
         <form class="name-form" id="nameForm" autocomplete="off">
           <h1>Quiz'e başlamadan önce ismini gir:</h1>
           <input id="nameInput" type="text" placeholder="Adın..." maxlength="16" required autofocus />
@@ -210,52 +150,41 @@
       html += `</div>`;
       quizBox.innerHTML = html;
 
-      // Eventler
       document.querySelectorAll('.option').forEach((btn, ix) => {
         btn.onclick = function() {
-          // Yeni ilk soru: "Ceyla Demir" özel mesaj
           if (step === 0 && ix === 0) {
             showInlineMsg(btn, "sen öyle san");
             btn.classList.add('shrink');
             setTimeout(() => { btn.classList.add('hide'); }, 350);
             return;
           }
-          // Yeni ilk soru: "Ana de Armas" klasik kaybolma
           if (step === 0 && ix === 2) {
             btn.classList.add('shrink');
             setTimeout(() => { btn.classList.add('hide'); }, 350);
             return;
           }
-          // Yeni ilk soru: "Serenay Sarıkaya" doğru, diğer soruya geç
           if (step === 0 && ix === 1) {
             step++;
             setTimeout(renderQuiz, 220);
             return;
           }
-          // İkinci soru: yanlış seçime özel inline mesaj ve kaybolma
           if (step === 1 && ix !== questions[1].correct) {
-            if (ix === 0) { // "99+"
-              showInlineMsg(btn, "abart");
-            } else if (ix === 1) { // "19"
-              showInlineMsg(btn, "çoruma bol selam");
-            }
+            if (ix === 0) { showInlineMsg(btn, "abart"); }
+            else if (ix === 1) { showInlineMsg(btn, "çoruma bol selam"); }
             btn.classList.add('shrink');
             setTimeout(() => { btn.classList.add('hide'); }, 350);
             return;
           }
-          // Üçüncü soru: yanlış şık patlasın
           if (step === 2 && ix !== questions[2].correct) {
             btn.classList.add('explode');
             setTimeout(() => { btn.classList.add('hide'); }, 280);
             return;
           }
-          // Dördüncü soru klasik: yanlış şık kaybolsun
           if (step === 3 && ix !== questions[3].correct) {
             btn.classList.add('shrink');
             setTimeout(() => { btn.classList.add('hide'); }, 290);
             return;
           }
-          // Son soru özel efekt
           if (step === 4) {
             if (ix === 1) {
               btn.classList.add('shrink');
@@ -275,7 +204,6 @@
               return;
             }
           }
-          // Doğruysa sonraki soruya geç
           step++;
           if (step < questions.length) setTimeout(renderQuiz, 220);
           else setTimeout(showFinal, 220);
