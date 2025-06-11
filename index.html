@@ -23,7 +23,6 @@
     .final h2 { font-size: 1.15rem; margin-bottom: 1.3rem; }
     .audio-box { margin-top: 2rem; }
     @keyframes pop { 0% { scale:0.7; opacity:0 } 100% { scale:1; opacity:1 } }
-
     /* 2. soru için patlama animasyonu */
     .explode {
       animation: explode .28s forwards cubic-bezier(.4,2.4,.38,1.06);
@@ -68,7 +67,6 @@
     }
     .name-form button:hover { background: #f59e19; }
     .name-error { color: #dc2626; font-size: .99rem; margin-top: .4rem; min-height: 20px; }
-
     /* İlk soruda şıkların üstünde özel mesaj */
     .inline-msg {
       position: absolute;
@@ -99,10 +97,19 @@
 <body>
   <div class="quiz-box" id="quizBox"></div>
   <script>
-    // Başta isim ekranı
     let userName = "";
 
     const questions = [
+      {
+        // Yeni ilk soru (resimsiz)
+        q: "Dünyanın en güzel kızı kimdir?",
+        opts: [
+          "Ceyla Demir",
+          "Serenay Sarıkaya", // doğru
+          "Ana de Armas"
+        ],
+        correct: 1
+      },
       {
         img: "kaan2.jpg",
         q: "Kaan Bilgiç daha önce kaç kıza site tasarlamıştır?",
@@ -117,11 +124,11 @@
         img: "aynenistan.png",
         q: "Boşluğu tamamlayınız?",
         opts: [
-          "CENG!", // doğru
-          "EE",
+          "CENG",
+          "EE!",// doğru
           "Endüstri"
         ],
-        correct: 0
+        correct: 1
       },
       {
         img: "regl.jpg",
@@ -172,22 +179,16 @@
     let msgTimeout = null;
 
     function showInlineMsg(btn, text) {
-      // Var olanı temizle
       let prev = document.getElementById("inlineMsg");
       if (prev) prev.remove();
-      // Oluştur
       let div = document.createElement("div");
       div.className = "inline-msg";
       div.id = "inlineMsg";
       div.textContent = text;
-      // Butonun üstüne koy
       btn.parentNode.appendChild(div);
-      // Konumlandır
-      const rect = btn.getBoundingClientRect();
       div.style.left = btn.offsetLeft + btn.offsetWidth/2 + "px";
       div.style.top = btn.offsetTop - 38 + "px";
       div.style.opacity = "1";
-      // 1.3sn sonra kaybol
       clearTimeout(msgTimeout);
       msgTimeout = setTimeout(()=>{ div.style.opacity=0; },1300);
     }
@@ -202,8 +203,8 @@
       html += `<div class="options" style="position:relative;">`;
       q.opts.forEach((opt, i) => {
         let extra = "";
-        if (step === 3 && i === 0) extra = ' id="evetBtn"';
-        if (step === 3 && i === 1) extra = ' id="hayirBtn"';
+        if (step === 4 && i === 0) extra = ' id="evetBtn"';
+        if (step === 4 && i === 1) extra = ' id="hayirBtn"';
         html += `<button class="option"${extra} data-ix="${i}">${opt.replace('!', '')}</button>`;
       });
       html += `</div>`;
@@ -212,8 +213,27 @@
       // Eventler
       document.querySelectorAll('.option').forEach((btn, ix) => {
         btn.onclick = function() {
-          // İlk soruda: yanlış seçime özel mesaj
-          if (step === 0 && ix !== questions[0].correct) {
+          // Yeni ilk soru: "Ceyla Demir" özel mesaj
+          if (step === 0 && ix === 0) {
+            showInlineMsg(btn, "sen öyle san");
+            btn.classList.add('shrink');
+            setTimeout(() => { btn.classList.add('hide'); }, 350);
+            return;
+          }
+          // Yeni ilk soru: "Ana de Armas" klasik kaybolma
+          if (step === 0 && ix === 2) {
+            btn.classList.add('shrink');
+            setTimeout(() => { btn.classList.add('hide'); }, 350);
+            return;
+          }
+          // Yeni ilk soru: "Serenay Sarıkaya" doğru, diğer soruya geç
+          if (step === 0 && ix === 1) {
+            step++;
+            setTimeout(renderQuiz, 220);
+            return;
+          }
+          // İkinci soru: yanlış seçime özel inline mesaj ve kaybolma
+          if (step === 1 && ix !== questions[1].correct) {
             if (ix === 0) { // "99+"
               showInlineMsg(btn, "abart");
             } else if (ix === 1) { // "19"
@@ -223,30 +243,27 @@
             setTimeout(() => { btn.classList.add('hide'); }, 350);
             return;
           }
-          // 2. soru: yanlış şık patlasın
-          if (step === 1 && ix !== questions[1].correct) {
+          // Üçüncü soru: yanlış şık patlasın
+          if (step === 2 && ix !== questions[2].correct) {
             btn.classList.add('explode');
             setTimeout(() => { btn.classList.add('hide'); }, 280);
             return;
           }
-          // 3. soru klasik: yanlış şık kaybolsun
-          if (step === 2 && ix !== questions[2].correct) {
+          // Dördüncü soru klasik: yanlış şık kaybolsun
+          if (step === 3 && ix !== questions[3].correct) {
             btn.classList.add('shrink');
             setTimeout(() => { btn.classList.add('hide'); }, 290);
             return;
           }
           // Son soru özel efekt
-          if (step === 3) {
+          if (step === 4) {
             if (ix === 1) {
-              // "Hayır" butonunu yok et
               btn.classList.add('shrink');
               setTimeout(() => {
                 btn.classList.add('hide');
-                // "Evet" büyüsün
                 const evetBtn = document.getElementById("evetBtn");
                 evetBtn.classList.add("expand");
                 evetBtn.innerText = "EVET";
-                // Evet'e yeni click: final
                 evetBtn.onclick = function() {
                   showFinal();
                 };
@@ -279,7 +296,6 @@
       `;
     }
 
-    // Sayfa açılışında isim ekranı gelsin
     renderNameScreen();
   </script>
 </body>
