@@ -124,7 +124,7 @@
       document.getElementById("nameForm").onsubmit = function(e) {
         e.preventDefault();
         const val = document.getElementById("nameInput").value.trim().toLowerCase();
-        if (val === "ceyla" || val === "ece") {
+        if (val === "ceyla" || val === "ece" || val === "ece ceyla" || val === "ececeyla" ) {
           userName = val;
           step = 0;
           renderQuiz();
